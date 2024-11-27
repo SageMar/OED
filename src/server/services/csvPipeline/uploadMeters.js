@@ -60,7 +60,7 @@ async function uploadMeters(req, res, filepath, conn) {
 			const areaInput = meter[9];
 			if (areaInput){
 				if (!isValidArea(areaInput)){
-					let msg = `For meter ${meter[0]} the area entry of $(areaInput) is invalid.`;
+					let msg = `For meter ${meter[0]} the area entry of ${areaInput} is invalid.`;
 					throw new CSVPipelineError(msg, undefined, 500);
 				}
 			}
@@ -68,8 +68,8 @@ async function uploadMeters(req, res, filepath, conn) {
 			// Verify meter type
 			const meterTypeString = meter[4];
 			if (meterTypeString) {
-				if (!isValidMeterType){
-					let msg = `For meter ${meter[0]} the area entry of $(meterTypeString) is invalid.`;
+				if (!isValidMeterType(meterTypeString)){
+					let msg = `For meter ${meter[0]} the area entry of ${meterTypeString} is invalid.`;
 					throw new CSVPipelineError(msg, undefined, 500);
 				}
 			}
@@ -186,7 +186,7 @@ function isValidArea(areaInput) {
 
 /**
  * Checks if the meter type provided is one of the 5 options allowed when creating a meter.
- * @param meterTypeString
+ * @param meterTypeString the string for the meter type
  * @returns true or false
  */
 function isValidMeterType(meterTypeString) {
