@@ -41,6 +41,10 @@ async function uploadMeters(req, res, filepath, conn) {
 	try {
 		for (let i = 0; i < meters.length; i++) {
 			let meter = meters[i];
+			//validation for boolean values
+			validateBooleanFields(meter, i);
+
+
 			// First verify GPS is okay
 			// This assumes that the sixth column is the GPS as order is assumed for now in a GPS file.
 			const gpsInput = meter[6];
@@ -139,7 +143,8 @@ async function uploadMeters(req, res, filepath, conn) {
 				);
 			}
 		}
-	} catch (error) {
+	}
+	 catch (error) {
 		throw new CSVPipelineError(`Failed to upload meters due to internal OED Error: ${error.message}`, undefined, 500);
 	}
 }
@@ -239,5 +244,44 @@ async function getUnitId(unitName, expectedUnitType, conn) {
 	if (!unit || unit.typeOfUnit !== expectedUnitType) return null;
 	return unit.id;
 }
+
+
+/**
+ * Validates all boolean-like fields for a given meter row.
+ * @param {Array} meter - A single row from the CSV file.
+ * @param {number} rowIndex - The current row index for error reporting.
+ */
+function validateBooleanFields(meter, rowIndex) {
+// all inputs that involve a true or false all bieng validated together.
+	const booleanFields = {
+		2: 'enabled',
+		3: 'displayable',
+		10: 'cumulative',
+		11: 'reset',
+		18: 'end only',
+		32: 'disableChecks'
+	};
+
+	for (const [index, name] of Object.entries(booleanFields)) {
+		let value = meter[index];
+
+		// allows upper/lower case.
+		if (typeof value === 'string') {
+			value = value.toLowerCase();
+		}
+
+		// Validates read values to either false or true
+		if (value !== 'true' && value !== 'false' && value !== true && value !== false) {
+			throw new CSVPipelineError(
+				`Invalid input for '${name}' in row ${rowIndex + 1}: "${meter[index]}". Expected 'true' or 'false'.`,
+				undefined,
+				500
+			);
+		}
+	}
+}
+
+
+
 
 module.exports = uploadMeters;
