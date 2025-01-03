@@ -11,8 +11,8 @@ const { normalizeBoolean } = require('./validateCsvUploadParams');
 
 /**
  * Middleware that uploads meters via the pipeline. This should be the final stage of the CSV Pipeline.
- * @param {express.Request} req 
- * @param {express.Response} res 
+ * @param {express.Request} req
+ * @param {express.Response} res
  * @param {filepath} filepath Path to meters csv file.
  * @param conn Connection to the database.
  */
@@ -56,7 +56,7 @@ async function uploadMeters(req, res, filepath, conn) {
 			if (gpsInput) {
 				// Verify GPS is okay values
 				if (!isValidGPSInput(gpsInput)) {
-					let msg = `For meter ${meter[0]} the gps coordinates of ${gpsInput} are invalid`;
+					let msg = `For meter ${meter[0]} the gps coordinates of ${gpsInput} are invalid.`;
 					throw new CSVPipelineError(msg, undefined, 500);
 				}
 				// Need to reverse latitude & longitude because standard GPS gives in that order but a GPSPoint for the
@@ -68,7 +68,7 @@ async function uploadMeters(req, res, filepath, conn) {
 			const areaInput = meter[9];
 			if (areaInput) {
 				if (!isValidArea(areaInput)){
-					let msg = `For meter ${meter[0]} the area entry of ${areaInput} is invalid.`;
+					let msg = `For meter ${meter[0]} the area entry of ${areaInput} is invalid. Area must be a number greater than 0.`;
 					throw new CSVPipelineError(msg, undefined, 500);
 				}
 			}
@@ -76,7 +76,7 @@ async function uploadMeters(req, res, filepath, conn) {
 			const timeSortValue = meter[17];
 			if (timeSortValue) {
 				if (!isValidTimeSort(timeSortValue)){
-					let msg = `For meter ${meter[0]} the time sort ${timeSortValue} is invalid.`;
+					let msg = `For meter ${meter[0]} the time sort ${timeSortValue} is invalid. Valid options are increasing or decreasing.`;
 					throw new CSVPipelineError(msg, undefined, 500);
 				}
 			}
@@ -93,7 +93,7 @@ async function uploadMeters(req, res, filepath, conn) {
 			const areaUnitString = meter[25];
 			if (areaUnitString) {
 				if (!isValidAreaUnit(areaUnitString)){
-					let msg = `For meter ${meter[0]} the area unit of ${areaUnitString} is invalid.`;
+					let msg = `For meter ${meter[0]} the area unit of ${areaUnitString} is invalid. Unit must be feet, meters, or none.`;
 					throw new CSVPipelineError(msg, undefined, 500);
 				}
 			}
@@ -102,7 +102,8 @@ async function uploadMeters(req, res, filepath, conn) {
 			const meterTypeString = meter[4];
 			if (meterTypeString) {
 				if (!isValidMeterType(meterTypeString)){
-					let msg = `For meter ${meter[0]} the meter type of ${meterTypeString} is invalid.`;
+					let msg = `For meter ${meter[0]} the meter type of ${meterTypeString} is invalid. Valid types include:
+								egauge, mamac, metasys, obvius, and other. `;
 					throw new CSVPipelineError(msg, undefined, 500);
 				}
 			}
